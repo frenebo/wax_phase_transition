@@ -41,8 +41,6 @@ def plot_crystallized_enthalpies():
 
 
 if __name__ == "__main__":
-    # plot_crystallized_enthalpies()
-    
     wax_props = {
         "C": C,
         "p": p,
