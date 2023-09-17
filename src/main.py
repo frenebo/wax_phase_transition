@@ -50,16 +50,12 @@ if __name__ == "__main__":
         "k_2d": k_2d,
     }
     
-    # sim_dt 
-    
     w = Sim2DWorld(wax_props)
     
     w.cell_enthalpies_per_area.fill(100)
     
     w.cell_enthalpies_per_area[80:120,80:120] = 200
-    # exit()
     
-    # niterations = 1000
     nframes = 100
     steps_per_frame = 100
     
@@ -75,17 +71,13 @@ if __name__ == "__main__":
     
     t_end = time.time()
     print("time elapsed for {} frames = {}".format(nframes, t_end-t_start))
-    # exit()
     
     def plottimepoint(temp_map, tot_enth, time_index):
         # Clear the current plot figure
         plt.clf()
 
         plt.title(f"Temperature at t = {time_index*steps_per_frame*w.sim_delta_t:.3f} unit time, E={tot_enth:.1f}")
-        # plt.xlabel("x")
-        # plt.ylabel("y")
-
-        # This is to plot u_k (u at time-step k)
+        
         plt.pcolormesh(temp_map, cmap=plt.cm.jet, vmin=0, vmax=100)
         plt.colorbar()
 
