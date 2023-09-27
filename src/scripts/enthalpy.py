@@ -2,7 +2,9 @@ import numpy as np
 # Model assumes that at onset of freezing, the phase transition starts abruptly, and then stops at freezing temp.
 def calculate_temperatures_from_enthalpy_nparr(
     E, # Enthalpies numpy array, J/(cm^2)
-    can_crystalize, # Boolean numpy array -  whether to assume it can freeze
+    proportion_crystallized,
+    # can_crystalize, # Boolean numpy array -  whether to assume it can freeze
+    prop_crystallization_stable_interp_func, # Function that calculates the proportion of crystallization that would be stable at a given temperature
     C, # Specific heat capacity, J/(g*K)
     p, # Density, g/(cm^2)
     L_a, # Latent heat of fusion, J/g
@@ -34,28 +36,30 @@ def calculate_temperatures_from_enthalpy_nparr(
     E_onset = lam * T_onset + L
     
     # If too hot to crystallize, or not able to crystallize
-    uncrystallizable_mask = np.logical_or(E > E_onset, np.logical_not(can_crystalize))
-    # If able to crystallize and under freezing enthalpy
-    totally_crystallized_mask = np.logical_and(E < E_freeze, can_crystalize)
-    # If able to crystalize, and neither under freezing enthalpy nor too hot to crystallize
-    within_phase_transition_mask = np.logical_not(np.logical_or(
-        uncrystallizable_mask,
-        totally_crystallized_mask
-    ))
+    # uncrystallizable_mask = np.logical_or(E > E_onset, np.logical_not(can_crystalize))
+    # # If able to crystallize and under freezing enthalpy
+    # totally_crystallized_mask = np.logical_and(E < E_freeze, can_crystalize)
+    # # If able to crystalize, and neither under freezing enthalpy nor too hot to crystallize
+    # within_phase_transition_mask = np.logical_not(np.logical_or(
+    #     uncrystallizable_mask,
+    #     totally_crystallized_mask
+    # ))
+    
+    # @TODO calculate this using  the prop crystallized stuff!
     
     # if E > E_onset or (not can_crystalize):
-    uncrystallized_temps =  (E - L) / lam
-    # elif E < E_freeze:
-    totally_crystallized_temps = E / lam
-    # else:
-    num =  E + L * T_freeze / (T_onset - T_freeze)
-    denom = (lam + L / (T_onset - T_freeze))
-    part_crystallized_temps = num / denom
+    # uncrystallized_temps =  (E - L) / lam
+    # # elif E < E_freeze:
+    # totally_crystallized_temps = E / lam
+    # # else:
+    # num =  E + L * T_freeze / (T_onset - T_freeze)
+    # denom = (lam + L / (T_onset - T_freeze))
+    # part_crystallized_temps = num / denom
 
     
-    return (
-        uncrystallizable_mask * uncrystallized_temps +
-        totally_crystallized_mask * totally_crystallized_temps +
-        within_phase_transition_mask * part_crystallized_temps
-    )
+    # return (
+    #     uncrystallizable_mask * uncrystallized_temps +
+    #     totally_crystallized_mask * totally_crystallized_temps +
+    #     within_phase_transition_mask * part_crystallized_temps
+    # )
     

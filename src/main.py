@@ -25,6 +25,16 @@ T_onset = 60
 # Converts to 0.0015 W/cm*K, multiply by wax depth to get heat conductivity in 2d.
 k_2d = 0.0015 * wax_depth # units are Watts/Kelvin = power per unit width / kelvin per length temp gradient
 
+# Loss rate to external environment - watts per unit area degree kelvin 
+# P = const * Area * temp difference
+# Glass conductivity is 1 watt/m*K = 0.01 watts/(cm*K)
+# For glass thickness 1 cm, loss rate is  0.01 (W/cm*K) * 1/(1cm) = 0.01 (W/cm^2*K)
+# For 0.5 cm, it's 0.02 W/(cm^2*K)
+loss_rate_watts_per_cm2_deg_kelvin = 0.01 / 0.5
+
+# Outside temperature to calculate heat loss from - 40 is high for a room temp but this is just an example
+outside_temperature = 40
+
 def plot_crystallized_enthalpies():
     fig, ax = plt.subplots()
     
@@ -48,13 +58,15 @@ if __name__ == "__main__":
         "T_freeze": T_freeze,
         "T_onset": T_onset,
         "k_2d": k_2d,
+        "outside_temperature": outside_temperature,
+        "loss_rate_watts_per_cm2_deg_kelvin": loss_rate_watts_per_cm2_deg_kelvin,
     }
     
     w = Sim2DWorld(wax_props)
     
-    w.cell_enthalpies_per_area.fill(100)
+    w.cell_enthalpies_per_area.fill(120)
     
-    w.cell_enthalpies_per_area[80:120,80:120] = 200
+    w.cell_enthalpies_per_area[80:120,80:120] = 150
     
     nframes = 100
     steps_per_frame = 100
@@ -65,20 +77,21 @@ if __name__ == "__main__":
     t_start = time.time()
     for i in range(nframes):
         for j in range(steps_per_frame):
-            w.diffuse_heat()
+            w.do_simulation_step()
+            # w.diffuse_heat()
         temp_history[i,:,:] = w.calculate_temperatures()
         tot_enths[i] = w.total_enthalpy()
     
     t_end = time.time()
-    print("time elapsed for {} frames = {}".format(nframes, t_end-t_start))
+    print("real time elapsed for {} frames = {}".format(nframes, t_end-t_start))
     
     def plottimepoint(temp_map, tot_enth, time_index):
         # Clear the current plot figure
         plt.clf()
 
-        plt.title(f"Temperature at t = {time_index*steps_per_frame*w.sim_delta_t:.3f} unit time, E={tot_enth:.1f}")
+        plt.title(f"Temperature at t = {time_index*steps_per_frame*w.sim_delta_t:.3f} seconds, E={tot_enth:.1f}")
         
-        plt.pcolormesh(temp_map, cmap=plt.cm.jet, vmin=0, vmax=100)
+        plt.pcolormesh(temp_map, cmap=plt.cm.jet, vmin=20, vmax=80)
         plt.colorbar()
 
         return plt
